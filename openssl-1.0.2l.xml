@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<project
+    name="OpenSSL 1.0.2l"
+    default="main">
+
+  <!-- OpenSSL properties -->
+  <property name="openssl.file" value="openssl-1.0.2l.tar.gz"/>
+  <property name="openssl.dir" value="openssl-1.0.2l"/>
+
+  <!-- Project properties -->
+  <property name="install.base" value="/sites/opt"/>
+  <property name="install.dir" value="${install.base}/OPENSSL/${openssl.dir}"/>
+  <property name="cflags" value="-Wl,-rpath,${install.dir}/lib"/>
+  <property name="cppflags" value="${cflags}"/>
+
+  <!-- DO NOT MODIFY ANYTHING BELOW HERE -->
+  <target name="main">
+    <antcall target="sanitytest"/>
+    <antcall target="clean"/>
+    <antcall target="unpack"/>
+    <antcall target="configure"/>
+    <antcall target="depend"/>
+    <antcall target="make"/>
+    <antcall target="test"/>
+    <antcall target="install"/>
+    <antcall target="clean"/>
+  </target>
+
+  <target name="sanitytest">
+    <available file="${openssl.file}" property="openssl.file.exists"/>
+    <fail message="${openssl.file} does not exist" unless="openssl.file.exists"/>
+  </target>
+
+  <target name="clean">
+    <echo message="Removing build artifacts" level="info"/>
+    <delete dir="${openssl.dir}"/>
+  </target>
+
+  <target name="unpack">
+    <echo message="Unpacking files" level="info"/>
+
+    <echo message="Unpacking ${openssl.file}" level="info"/>
+    <exec executable="tar" failonerror="true">
+      <arg value="-xf"/>
+      <arg value="${openssl.file}"/>
+    </exec>
+  </target>
+
+  <target name="configure">
+    <echo message="Running config" level="info"/>
+    <exec executable="bash" dir="${openssl.dir}" failonerror="true">
+      <env key="CFLAGS" value="${cflags}"/>
+      <env key="CPPFLAGS" value="${cppflags}"/>
+      <arg value="config"/>
+      <arg value="--prefix=${install.dir}"/>
+      <arg value="--openssldir=${install.dir}"/>
+      <arg value="threads"/>
+      <arg value="shared"/>
+      <arg value="no-comp"/>
+      <arg value="${cflags}"/>
+    </exec>
+  </target>
+
+  <target name="depend">
+    <echo message="Running 'make depend'" level="info"/>
+    <exec executable="make" dir="${openssl.dir}" failonerror="true">
+      <arg value="depend"/>
+    </exec>
+  </target>
+
+  <target name="make">
+    <echo message="Running 'make'" level="info"/>
+    <exec executable="make" dir="${openssl.dir}" failonerror="true"/>
+  </target>
+
+  <target name="test">
+    <echo message="Running 'make test'" level="info"/>
+    <exec executable="make" dir="${openssl.dir}" failonerror="true">
+      <arg value="test"/>
+    </exec>
+  </target>
+
+  <target name="install">
+    <echo message="Running 'make install'" level="info"/>
+    <exec executable="make" dir="${openssl.dir}" failonerror="true">
+      <arg value="install"/>
+    </exec>
+  </target>
+
+</project>
